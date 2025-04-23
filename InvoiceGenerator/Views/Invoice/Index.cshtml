@@ -1,0 +1,47 @@
+﻿@model IEnumerable<InvoiceGenerator.Models.Invoice>
+
+@{
+    ViewBag.Title = "Invoices";
+}
+
+<h2>Invoices</h2>
+
+<p>
+    @Html.ActionLink("➕ Add Invoice", "Create", "Invoice", null, new { @class = "btn btn-primary mb-3" })
+</p>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Invoice Code</th>
+            <th>Customer</th>
+            <th>Invoice Date</th>
+            <th>Due Date</th>
+            <th>Total Amount</th>
+            <th>Paid</th>
+            <th>Balance</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.InvoiceCode</td>
+                <td>@item.CustomerName</td>
+                <td>@item.InvoiceDate.ToShortDateString()</td>
+                <td>@item.DueDate.ToShortDateString()</td>
+                <td>@item.TotalAmount</td>
+                <td>@item.AmountPaid</td>
+                <td>@item.BalanceDue</td>
+                <td>@item.Status</td>
+                <td>
+                    @Html.ActionLink("✏️ Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-sm btn-warning me-1" })
+                    @Html.ActionLink("🗑️ Delete", "Delete", new { id = item.Id }, new { @class = "btn btn-sm btn-danger" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+

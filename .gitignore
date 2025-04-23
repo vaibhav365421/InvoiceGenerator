@@ -1,0 +1,65 @@
+## Ignore Visual Studio temporary files, build results, and user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+bin/
+obj/
+out/
+
+## NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+## ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+## Microsoft Azure Web App publish settings
+PublishScripts/
+*.PublishSettings
+**/Properties/PublishProfiles/
+
+## User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## Rider
+.idea/
+
+## Mac files
+.DS_Store
+
+## Logs
+*.log
+
+## Web development cache
+node_modules/
+bower_components/
+jspm_packages/
+
+## VS Code
+.vscode/
+
+## Others
+*.dbmdl
+*.bak
+*.backup
+*.cache
+*.orig
+*.tmp
+
+## Entity Framework Migrations (optional, if you generate these dynamically)
+# Migrations/
+
+## Compiled Views (if Razor precompilation is enabled)
+**/obj/**/Views/*.cshtml.cs
+**/obj/**/Views/*.cshtml.g.cs

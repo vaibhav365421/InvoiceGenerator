@@ -1,0 +1,175 @@
+﻿@model InvoiceGenerator.Models.ViewModel.InvoiceViewModel
+
+@{
+    ViewBag.Title = "Edit Invoice";
+}
+
+<h2>Edit Invoice</h2>
+
+@using (Html.BeginForm("Edit", "Invoice", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Invoice.Id)
+    @using Newtonsoft.Json
+    @Html.Hidden("InvoiceItemsJson", JsonConvert.SerializeObject(Model.InvoiceItems), new { id = "InvoiceItemsJson" })
+    <div class="form-group row">
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.InvoiceCode)
+            @Html.TextBoxFor(m => m.Invoice.InvoiceCode, new { @class = "form-control" })
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.InvoiceDate)
+            @Html.TextBoxFor(m => m.Invoice.InvoiceDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.DueDate)
+            @Html.TextBoxFor(m => m.Invoice.DueDate, "{0:yyyy-MM-dd}", new { @type = "date", @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.Invoice.CustomerName)
+            @Html.TextBoxFor(m => m.Invoice.CustomerName, new { @class = "form-control" })
+        </div>
+        <div class="col-md-6">
+            @Html.LabelFor(m => m.Invoice.CustomerPhone)
+            @Html.TextBoxFor(m => m.Invoice.CustomerPhone, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <hr />
+    <h4>Add Products</h4>
+    <div class="row mb-3">
+        <div class="col">
+            <input type="text" id="ItemName" placeholder="Item Name" class="form-control" />
+        </div>
+        <div class="col">
+            <input type="number" id="Quantity" placeholder="Qty" class="form-control" />
+        </div>
+        <div class="col">
+            <input type="number" id="Price" placeholder="Price" class="form-control" />
+        </div>
+        <div class="col">
+            <button type="button" id="addItem" class="btn btn-success">+ Add Product</button>
+        </div>
+    </div>
+
+    <table class="table" id="itemsTable">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Amount</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <!-- Hidden input to hold item list JSON -->
+    @Html.Hidden("InvoiceItemsJson", "", new { id = "InvoiceItemsJson" })
+
+    <hr />
+    <div class="form-group">
+        @Html.LabelFor(m => m.Invoice.Notes)
+        @Html.TextAreaFor(m => m.Invoice.Notes, new { @class = "form-control", rows = 3 })
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.TotalAmount)
+            @Html.TextBoxFor(m => m.Invoice.TotalAmount, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.AmountPaid)
+            @Html.TextBoxFor(m => m.Invoice.AmountPaid, new { @class = "form-control" })
+        </div>
+        <div class="col-md-4">
+            @Html.LabelFor(m => m.Invoice.BalanceDue)
+            @Html.TextBoxFor(m => m.Invoice.BalanceDue, new { @class = "form-control", @readonly = "readonly" })
+        </div>
+    </div>
+
+    <div class="form-group">
+        @Html.LabelFor(m => m.Invoice.Status)
+        @Html.DropDownListFor(m => m.Invoice.Status, new SelectList(new[] { "Paid", "Unpaid" }), "Select Status", new { @class = "form-control" })
+    </div>
+
+    <br />
+    <input type="submit" value="Save Invoice" class="btn btn-primary" />
+}
+
+@section Scripts {
+    <script>
+        let invoiceItems = [];
+
+        function updateTable() {
+            let table = $("#itemsTable tbody");
+            table.empty();
+            let total = 0;
+
+            invoiceItems.forEach((item, index) => {
+                let amount = item.Quantity * item.Price;
+                total += amount;
+
+                table.append(`
+                    <tr>
+                        <td>${item.ItemName}</td>
+                        <td>${item.Quantity}</td>
+                        <td>${item.Price}</td>
+                        <td>${amount.toFixed(2)}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeItem(${index})">Remove</button></td>
+                    </tr>
+                `);
+            });
+
+            $("#Invoice_TotalAmount").val(total.toFixed(2));
+            let paid = parseFloat($("#Invoice_AmountPaid").val()) || 0;
+            $("#Invoice_BalanceDue").val((total - paid).toFixed(2));
+
+            $("#InvoiceItemsJson").val(JSON.stringify(invoiceItems));
+        }
+
+        function removeItem(index) {
+            invoiceItems.splice(index, 1);
+            updateTable();
+        }
+
+        $("#addItem").click(function () {
+            const item = {
+                ItemName: $("#ItemName").val(),
+                Quantity: parseInt($("#Quantity").val()),
+                Price: parseFloat($("#Price").val())
+            };
+
+            if (!item.ItemName || !item.Quantity || !item.Price) {
+                alert("Please fill in all fields.");
+                return;
+            }
+
+            invoiceItems.push(item);
+
+            $("#ItemName").val('');
+            $("#Quantity").val('');
+            $("#Price").val('');
+            updateTable();
+        });
+
+        $("#Invoice_AmountPaid").on("input", updateTable);
+
+        // Load existing items on page load
+        $(document).ready(function () {
+            let existingItems = $("#InvoiceItemsJson").val();
+            if (existingItems) {
+                invoiceItems = JSON.parse(existingItems);
+                updateTable();
+            }
+        });
+    </script>
+}
+
+
+
